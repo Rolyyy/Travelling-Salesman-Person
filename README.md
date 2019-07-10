@@ -1,4 +1,4 @@
-# Travelling-Salesman-Person
+# Travelling Salesman Problem 
 A program which uses Simulated Annealing in order to solve the TSP.
 Beginning of the Source code has intructions on how to run the program !
 
