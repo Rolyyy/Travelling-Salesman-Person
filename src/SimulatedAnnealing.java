@@ -12,8 +12,9 @@ public class SimulatedAnnealing {
 	//The TSP_FILE variable must be set depending on your directory before running this application
 	//For ceratin cities you can set the TSP_OPT_FILE in order to show the optimal route 
 	//note that both files must correspond to the same number, e.g. if choosing "TSP_48.txt" then you must also choose "TSP_48_OPT.txt"	
-	//You can also set the number of cities being worked on
+	//You can also choose the number of cities being worked on
 
+	//CHANGE THESE:
 	static String TSP_FILE = "C:\\Eclipse-workspace\\Travelling_Salesperson_Problem\\TSP Data\\TSP_48.txt";
 	static String TSP_OPT_FILE = "C:\\Eclipse-workspace\\Travelling_Salesperson_Problem\\TSP Data\\TSP_48_OPT.txt";
 	
@@ -28,7 +29,13 @@ public class SimulatedAnnealing {
 		double T0 = 2*averageOfDistances(); //Uses the Average Distance between each city to derive a starting temperature
 	
 		System.out.println("Simulated Annealing"); System.out.println("");
-	
+		
+		double[][] tsp;
+		tsp =  ReadArrayFile(TSP_FILE, " ");
+		int n=tsp.length;
+		System.out.println("nr of cities: " + n);
+		
+		
 		//Simulated Annealing algorithm is ran i number of times, in order to have multiple solutions
 		for(int i=0;i<10;i++) {
 		simulatedAnnealing(T0,1000000); //PARAMETERS: (Starting Temperature, No. of iterations)
@@ -53,6 +60,7 @@ public class SimulatedAnnealing {
 		//PrintArray(tsp); //This prints the the cities and their distances to the console
 	
 		int n=tsp.length;
+		
 		ArrayList<Integer> x = RandPerm(n); //Creates a random ArrayList solution of length n, depending on the number of cities 
 		
 		double f=0; double f1=0; // The 2 fitnesses used
@@ -83,13 +91,13 @@ public class SimulatedAnnealing {
 				}
 				else {
 					//accept change
-					x=(ArrayList<Integer>) x1.clone();
+					x= new ArrayList<Integer> (x1);
 					f=f1;
 				}
 			}
 			else {
 				//accept change
-				x=(ArrayList<Integer>) x1.clone();
+				x= new ArrayList<Integer>(x1);
 				f=f1;
 			}
 			
@@ -179,7 +187,7 @@ public class SimulatedAnnealing {
 		
 		//System.out.print("Small change method  ");
 		
-		ArrayList<Integer> array2 = (ArrayList<Integer>) array1.clone();
+		ArrayList<Integer> array2 = new ArrayList<Integer> (array1);
 		int i1=0, i2=0;
 		int t1=0, t2=0;
 		
@@ -267,11 +275,14 @@ public class SimulatedAnnealing {
 					}
 					++i;
 				}
+				
 			}
+			
 			catch(Exception E)
 			{
 				System.out.println("+++ReadArrayFile: "+E.getMessage());
 			}
+			
 		    return(res);
 		}
 		
