@@ -19,57 +19,63 @@ public class SimulatedAnnealing {
 	
 	
 	
+	//The simulated annealing method is started from the main method
 	public static void main(String args[]) {
 		
 		
 		
 		
-		double T0 = 2*averageOfDistances();//SEND DATA TO THIS METHOD
+		double T0 = 2*averageOfDistances(); //Uses the Average Distance between each city to derive a starting temperature
 	
 		System.out.println("Simulated Annealing"); System.out.println("");
 	
+		//Simulated Annealing algorithm is ran i number of times, in order to have multiple solutions
 		for(int i=0;i<10;i++) {
-	simulatedAnnealing(T0,1000000); //PARAMETERS: (Starting Temperature, No. of iterations)
-		//SEND DATA TO THIS METHOD FOR CODREUNNER
-		//SEND CITIES N TO EACH METHOD
+		simulatedAnnealing(T0,1000000); //PARAMETERS: (Starting Temperature, No. of iterations)
+		
 		}
 		
-		//COMMENT THIS OUT IF OPTIMAL TOUR LENGTH NOT NEEDED
-		optimalTour();
+		
+		optimalTour(); //COMMENT THIS OUT IF OPTIMAL TOUR LENGTH NOT NEEDED
 		
 		
 	}
 	
 	
 	
-	
+	//This is the method which creates an initial solutions, and runs for a number of iterations in order to create new, better solutions
 	public static void simulatedAnnealing(double T, double iter) {
 		
 		
 		
 		double[][] tsp;
-		tsp =  ReadArrayFile(TSP_FILE, " ");
-		//PrintArray(tsp);
+		tsp =  ReadArrayFile(TSP_FILE, " "); // Reads in the array of cities from the textfile
+		//PrintArray(tsp); //This prints the the cities and their distances to the console
 	
 		int n=tsp.length;
-		ArrayList<Integer> x = RandPerm(n);
+		ArrayList<Integer> x = RandPerm(n); //Creates a random ArrayList solution of length n, depending on the number of cities 
 		
-		double f=0; double f1=0; ArrayList<Integer> x1 = new ArrayList<Integer>(); double p=0; double T0=T;
-		
+		double f=0; double f1=0; // The 2 fitnesses used
+		ArrayList<Integer> x1 = new ArrayList<Integer>(); //The changed solution, which will be analyzed in each iteration
+	
+		//A set of variables needed for calculations in Simulated Annealing:
+		double p=0; double T0=T;
 		double T_iter = 0.001;
+		double Y = Math.pow(T_iter/T0, 1/iter); //Y(Lambda) is the cooling rate(a value very close to 1, such as 0.999995)
+		//System.out.print(" Lambda: " + Y); 
 		
-		double Y = Math.pow(T_iter/T0, 1/iter);
 		
-		//System.out.print(" Lambda: " + Y);
-		
+		//This is the loop which creates new solutions, and uses the Simulated Annealing algorithm to decide whether to accept them or not
+		//This runs for a large number of iterations, as given by 'iter' variable
 		for(int i=0;i<iter-1;i++) {
 			
-			f = TSPfitness(n, x, tsp);
-			//System.out.println("Tour length : " + f + " [iteration " + i + "]");
-			x1 = SmallChange(x);
+			f = TSPfitness(n, x, tsp); //Gives fitness value from solution
+			//System.out.println("Tour length : " + f + " [iteration " + i + "]"); //This prints out current tour length 
 			
-			f1 = TSPfitness(n, x1, tsp);
+			x1 = SmallChange(x); 
+			f1 = TSPfitness(n, x1, tsp); //'f1' is a fitness slightly different to 'f'
 			
+			//Calculations based on Simulated Annealing chooses whether to accept or reject a change
 			if(f1>f) {
 				p = PR(f1,f,T); 
 				if(p < UR(0, 1)) {
@@ -82,32 +88,38 @@ public class SimulatedAnnealing {
 				}
 			}
 			else {
+				//accept change
 				x=(ArrayList<Integer>) x1.clone();
 				f=f1;
 			}
 			
-			T = T*Y;
+			T = T*Y; //The Temperature, as it cools with Time(Itrations)
 			//System.out.println("T: " + T);
 			
 			
 		}
-		System.out.println(" Tour length : " + f);
+		System.out.println(" Tour length : " + f); //This is the best tour length that Simulated Annealing was able to find
 		//System.out.println("Lambda: " + Y);
 		
 		
 	}
 	
+	//This method creates a random permutation in the form of an arraylist
+	//Inititally it creates an arraylist of numbers from 0 to n-1, and then it randomly shuffles it to a new arraylist
+	//This arraylist is then used to create an inital solution
 	public static ArrayList<Integer> RandPerm(int n)
 	{
 	ArrayList<Integer> T = new ArrayList<Integer>();
 	ArrayList<Integer> P = new ArrayList<Integer>();
 	
-	
+	//Filling the inital arraylist:
 	int i=0;
 	for(i=1;i<=n;i++)
 	{
 	P.add(i-1);
 	}
+	
+	
 	/*
 	System.out.print("set of cities:      ");
 	for (Integer num : P) {
@@ -116,12 +128,13 @@ public class SimulatedAnnealing {
 	System.out.print(" | ");
 	*/
 	
-	
+	//Filling the Shuffled arraylist:
 	while(P.size()>0){
 		i = UI(0, P.size()-1);
 		T.add(P.get(i));
 		P.remove(i);
 	}
+	
 	/*
 	System.out.print("Random permutation: ");
 	for (Integer num : T) {
@@ -133,7 +146,10 @@ public class SimulatedAnnealing {
 	return T;
 		
 	}
-	
+
+	//This method calculates the fitness of the solution derived
+	//It uses n(nr of cities), T(the solution), and D(the 2d array of distances between cities)
+	//The method works 1 by 1 to add up all points in the route as given by T
 	public static double TSPfitness(int n, ArrayList<Integer> T, double[][] D) {
 		double s=0;
 		int i=0;
@@ -156,6 +172,8 @@ public class SimulatedAnnealing {
 		return s;
 	}
 
+	//This method takes a solution, and swaps 2 values in order to slightly change it
+	//This changed solution is then evaluated against the original one
 	public static ArrayList<Integer> SmallChange(ArrayList<Integer> array1)
 	{	
 		
@@ -191,6 +209,7 @@ public class SimulatedAnnealing {
 		return array2;
 	}
 
+	//Used for calculation in Simulated Annealing
 	public static double PR(double f1,double f,double T) {
 		double returnvalue=0;
 		
@@ -203,7 +222,7 @@ public class SimulatedAnnealing {
 	//TSP Methods  here:
 	
 	//Print a 2D double array to the console Window
-		static public void PrintArray(double x[][])
+	static public void PrintArray(double x[][])
 		{
 			for(int i=0;i<x.length;++i)
 			{
@@ -215,9 +234,10 @@ public class SimulatedAnnealing {
 				System.out.println();
 			}
 		}
-		//This method reads in a text file and parses all of the numbers in it. This method is for reading in a square 2D numeric array from a text file
-		//'sep' is the separator between columns
-		static public double[][] ReadArrayFile(String filename,String sep)
+		
+	//This method reads in a text file and parses all of the numbers in it. This method is for reading in a square 2D numeric array from a text file
+	//'sep' is the separator between columns
+	static public double[][] ReadArrayFile(String filename,String sep)
 		{
 			double res[][] = null;
 			try
@@ -254,10 +274,10 @@ public class SimulatedAnnealing {
 			}
 		    return(res);
 		}
-		//This method reads in a text file and parses all of the numbers in it
 		
-		//It takes in as input a string filename and returns an array list of Integers
-		static public ArrayList<Integer> ReadIntegerFile(String filename)
+	//This method reads in a text file and parses all of the numbers in it
+	//It takes in as input a string filename and returns an array list of Integers
+	static public ArrayList<Integer> ReadIntegerFile(String filename)
 		{
 			ArrayList<Integer> res = new ArrayList<Integer>();
 			Reader r;
@@ -286,10 +306,11 @@ public class SimulatedAnnealing {
 
 	//CS2004 methods Here:
 		
-		//Shared random object
-		static private Random rand;
-		//Create a uniformly distributed random integer between aa and bb inclusive
-		static public int UI(int aa,int bb)
+	//Shared random object
+	static private Random rand;
+	
+	//Create a uniformly distributed random integer between aa and bb inclusive
+	static public int UI(int aa,int bb)
 		{
 			int a = Math.min(aa,bb);
 			int b = Math.max(aa,bb);
@@ -302,8 +323,9 @@ public class SimulatedAnnealing {
 			int x = rand.nextInt(d) + a;
 			return(x);
 		}
-		//Create a uniformly distributed random double between a and b inclusive
-		static public double UR(double a,double b)
+	
+	//Create a uniformly distributed random double between a and b inclusive
+	static public double UR(double a,double b)
 		{
 			if (rand == null) 
 			{
@@ -312,9 +334,10 @@ public class SimulatedAnnealing {
 			}
 			return((b-a)*rand.nextDouble()+a);
 		}
-		//This method reads in a text file and parses all of the numbers in it
-		//It takes in as input a string filename and returns an array list of Doubles
-		static public ArrayList<Double> ReadNumberFile(String filename)
+		
+	//This method reads in a text file and parses all of the numbers in it
+	//It takes in as input a string filename and returns an array list of Doubles
+	static public ArrayList<Double> ReadNumberFile(String filename)
 		{
 			ArrayList<Double> res = new ArrayList<Double>();
 			Reader r;
@@ -340,7 +363,10 @@ public class SimulatedAnnealing {
 		    return(res);
 		}
 
-		public static void optimalTour() {
+	//end of CS2004 Methods
+	
+	//This method can be used to get the actual optimal route. It's only available for certain city numbers, and requires reading in the corresponding "TSP_n_OPT" textfile	
+	public static void optimalTour() {
 			
 			ArrayList<Integer> tsp_opt = new ArrayList<Integer>();
 			tsp_opt = ReadIntegerFile(TSP_OPT_FILE);
@@ -354,7 +380,9 @@ public class SimulatedAnnealing {
 			
 		}
 
-		public static double averageOfDistances() {
+	//This method calculates the average distance between all the cities in the array
+	//It's useful in order to derive a Starting temperature(T0) which is more effective, as opposed to a random starting temp
+	public static double averageOfDistances() {
 			
 			double[][] tsp;
 			tsp =  ReadArrayFile(TSP_FILE, " ");
